@@ -213,19 +213,21 @@ ${content}`);
   const specsWithDefs = [];
   for (const spec of results) {
     const terms = [];
+    const referencers = new Set();
     for (const ref of (spec.backrefs || []).sort((a, b) => a.linkingText[0].localeCompare(b.linkingText[0]))) {
-      // TODO: decorate with type?
+      ref.referencedBy.forEach(s => referencers.add(s.shortname));
       terms.push(html`<dt><a class="${typeInfo[ref.type]?.area}" href="${ref.href}">${ref.type !== "dfn" && ref.type !== "abstract-op" ? html`<code>` : ""}${ref.linkingText[0]}${ref.type !== "dfn" && ref.type !== "abstract-op" ? html`</code>` : ""}</a></dt>
 <dd>Referenced by: ${join(ref.referencedBy.map(s => html`<a href="${s.url}">${s.title}</a>`, ", "))}</dd>`);
     }
     if (terms.length) {
-      await generatePage(`${spec.shortname}.html`, `Definitions in ${spec.title}`, html`<dl>${join(terms, "\n")}</dl>`);
+      spec.numberOfReferencers = referencers.size;
+      await generatePage(`${spec.shortname}.html`, `Definitions in ${spec.title}`, html`<p>Referenced by ${spec.numberOfReferencers} other specifications.</p><dl>${join(terms, "\n")}</dl>`);
       specsWithDefs.push(spec);
     }
 
   }
   specsWithDefs.sort((a, b) => a.title.localeCompare(b.title));
-  const indexContent = html`<p>This site collects indicate which specifications reference terms defined by <a href="https://github.com/w3c/browser-specs">Web specifications</a></p><ol>${join(specsWithDefs.map(s => html`<li><a href="${s.shortname}.html">${s.title}</a></li>`), "\n")}</ol>`;
+  const indexContent = html`<p>This site collects indicate which specifications reference terms defined by <a href="https://github.com/w3c/browser-specs">Web specifications</a></p><ol>${join(specsWithDefs.map(s => html`<li><a href="${s.shortname}.html">${s.title}</a> (referenced by ${s.numberOfReferencers} spec${s.numberOfReferencers > 1 ? "s" : ""})</li>`), "\n")}</ol>`;
 
   await generatePage("index.html", "SpecDex: Web specs backreferences", indexContent);
 })();
