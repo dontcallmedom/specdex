@@ -12,8 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
-      with:
-        node-version: 18.x
     - name: Setup environment
       run: npm install
     - name: checkout webref repo
@@ -27,6 +25,8 @@ jobs:
         git add -A
         git commit -m "Automatic update" -a || true
     - name: Push changes
+      permissions:
+        contents: write
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
