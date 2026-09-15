@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "escape-html-template-tag": "^2.2.3",
+    "reffy": "^20.0.16"
+  }
+}
